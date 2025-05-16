@@ -7,7 +7,7 @@ const MainFeature = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('all'); 
   const [demoMode, setDemoMode] = useState('search'); // 'search' or 'create'
   const [nextId, setNextId] = useState(6); // Starting ID for new contacts
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,6 +34,9 @@ const MainFeature = () => {
   const XIcon = getIcon('X');
   const PlusIcon = getIcon('Plus');
   const PhoneIcon = getIcon('Phone');
+  const UploadIcon = getIcon('Upload');
+  const DownloadIcon = getIcon('Download');
+  const FileSpreadsheetIcon = getIcon('FileSpreadsheet');
   
   const handleSearch = (e) => {
     e.preventDefault();
@@ -91,6 +94,343 @@ const MainFeature = () => {
       
       setSearchResults(filtered);
     }
+  };
+
+  // Export CSV function
+  const exportContacts = () => {
+    // Create CSV header
+    const headers = ['Name', 'Email', 'Phone', 'Company', 'Role', 'Category'];
+    
+    // Transform data to CSV format
+    const dataToExport = demoContacts.map(contact => [
+      contact.name || '',
+      contact.email || '',
+      contact.phone || '',
+      contact.company || '',
+      contact.role || '',
+      contact.category || ''
+    ]);
+    
+    // Combine header and data
+    const csvContent = [
+      headers.join(','),
+      ...dataToExport.map(row => row.join(','))
+    ].join('\n');
+    
+    // Create a Blob and download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'connectsphere_contacts.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('Contacts exported successfully!');
+  };
+
+  // Import/Export Demo Component
+  const ImportExportDemo = () => {
+    const [csvFile, setCsvFile] = useState(null);
+    const [csvData, setCsvData] = useState([]);
+    const [csvHeaders, setCsvHeaders] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
+    const [isMapping, setIsMapping] = useState(false);
+    const [columnMapping, setColumnMapping] = useState({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      role: '',
+      category: ''
+    });
+    const [importedContacts, setImportedContacts] = useState([]);
+    
+    // Sample CSV data for demonstration
+    const sampleCsvContent = `Name,Email,Phone,Company,Position,Group
+John Smith,john.smith@company.com,555-123-4567,Acme Corp,Marketing Director,work
+Jane Doe,jane.doe@gmail.com,555-987-6543,Family,Sister,family
+Alex Johnson,alex@designstudio.co,555-234-5678,Design Studio,Lead Designer,work
+Michael Wong,mike@personal.com,555-876-5432,City Hospital,Doctor,personal`;
+    
+    const handleDragOver = (e) => {
+      e.preventDefault();
+      setIsDragging(true);
+    };
+    
+    const handleDragLeave = () => {
+      setIsDragging(false);
+    };
+    
+    const handleDrop = (e) => {
+      e.preventDefault();
+      setIsDragging(false);
+      
+      const files = e.dataTransfer.files;
+      if (files.length) {
+        handleFile(files[0]);
+      }
+    };
+    
+    const handleFileInput = (e) => {
+      if (e.target.files.length) {
+        handleFile(e.target.files[0]);
+      }
+    };
+    
+    const handleFile = (file) => {
+      if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        toast.error('Please upload a CSV file');
+        return;
+      }
+      
+      setCsvFile(file);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        parseCSV(content);
+      };
+      reader.readAsText(file);
+    };
+    
+    const parseCSV = (content) => {
+      // Simple CSV parsing (in a real app, use a CSV parsing library)
+      const lines = content.split('\n');
+      if (lines.length > 0) {
+        const headers = lines[0].split(',').map(h => h.trim());
+        setCsvHeaders(headers);
+        
+        const data = [];
+        for (let i = 1; i < lines.length; i++) {
+          if (lines[i].trim()) {
+            const values = lines[i].split(',').map(v => v.trim());
+            const row = {};
+            headers.forEach((header, index) => {
+              row[header] = values[index] || '';
+            });
+            data.push(row);
+          }
+        }
+        setCsvData(data);
+        setIsMapping(true);
+        
+        // Auto-map columns if headers match expected fields
+        const mapping = { ...columnMapping };
+        headers.forEach(header => {
+          const lowerHeader = header.toLowerCase();
+          if (lowerHeader.includes('name')) mapping.name = header;
+          else if (lowerHeader.includes('email')) mapping.email = header;
+          else if (lowerHeader.includes('phone')) mapping.phone = header;
+          else if (lowerHeader.includes('company')) mapping.company = header;
+          else if (lowerHeader.includes('position') || lowerHeader.includes('role') || lowerHeader.includes('title')) mapping.role = header;
+          else if (lowerHeader.includes('group') || lowerHeader.includes('category') || lowerHeader.includes('type')) mapping.category = header;
+        });
+        setColumnMapping(mapping);
+      }
+    };
+    
+    const handleUseSampleData = () => {
+      parseCSV(sampleCsvContent);
+      setCsvFile({ name: 'sample_contacts.csv', size: sampleCsvContent.length });
+    };
+    
+    return (
+      <div className="py-4">
+        {!isMapping ? (
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-surface-50 dark:bg-surface-800/50 p-6 rounded-lg mb-6">
+              <h3 className="text-xl font-semibold mb-4">Import Contacts from CSV</h3>
+              <p className="text-surface-600 dark:text-surface-400 mb-4">
+                Upload a CSV file containing your contacts data. We'll help you map the columns to the right fields.
+              </p>
+              
+              <div 
+                className={`border-2 border-dashed p-8 rounded-lg text-center mb-6 ${
+                  isDragging ? 'border-primary bg-primary/5' : 'border-surface-300 dark:border-surface-700'
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <FileSpreadsheetIcon className="w-12 h-12 mx-auto mb-4 text-primary" />
+                <p className="mb-4 text-surface-700 dark:text-surface-300">
+                  Drag & drop your CSV file here, or click to browse
+                </p>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileInput}
+                  className="hidden"
+                  id="csv-file-input"
+                />
+                <button
+                  onClick={() => document.getElementById('csv-file-input').click()}
+                  className="btn btn-primary mb-4"
+                >
+                  Select CSV File
+                </button>
+                <p className="text-xs text-surface-500">
+                  Supported format: CSV
+                </p>
+              </div>
+              
+              <div className="text-center">
+                <p className="mb-3 text-surface-600 dark:text-surface-400">
+                  Don't have a CSV file ready?
+                </p>
+                <button
+                  onClick={handleUseSampleData}
+                  className="btn btn-secondary"
+                >
+                  Use Sample Data
+                </button>
+              </div>
+              
+              <div className="mt-8 border-t border-surface-200 dark:border-surface-700 pt-6">
+                <h4 className="font-medium mb-2">Export Your Contacts</h4>
+                <p className="text-surface-600 dark:text-surface-400 mb-4">
+                  Download your contacts data in CSV format for backup or to use in other applications.
+                </p>
+                <button
+                  onClick={exportContacts}
+                  className="btn btn-secondary"
+                >
+                  <DownloadIcon className="w-4 h-4 mr-2" />
+                  Export to CSV
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-surface-50 dark:bg-surface-800/50 p-6 rounded-lg mb-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold">Map CSV Columns</h3>
+                <div className="text-sm text-surface-600 dark:text-surface-400">
+                  File: {csvFile.name} ({Math.round(csvFile.size / 1024)} KB)
+                </div>
+              </div>
+              
+              <p className="text-surface-600 dark:text-surface-400 mb-6">
+                We've detected {csvData.length} contacts in your CSV file. Please map the columns to the right fields:
+              </p>
+              
+              <div className="space-y-4 mb-6">
+                {['name', 'email', 'phone', 'company', 'role', 'category'].map((field) => (
+                  <div key={field} className="grid grid-cols-5 gap-4 items-center">
+                    <label className="font-medium text-right capitalize col-span-1">
+                      {field === 'role' ? 'Role/Position' : field}
+                      {field === 'name' || field === 'email' ? ' *' : ''}
+                    </label>
+                    <div className="col-span-4">
+                      <select
+                        value={columnMapping[field]}
+                        onChange={(e) => setColumnMapping({...columnMapping, [field]: e.target.value})}
+                        className="w-full px-3 py-2 border border-surface-300 dark:border-surface-700 rounded-md dark:bg-surface-800"
+                      >
+                        <option value="">-- Not Mapped --</option>
+                        {csvHeaders.map((header, i) => (
+                          <option key={i} value={header}>{header}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mb-8">
+                <h4 className="font-medium mb-3">Preview (First 3 Rows)</h4>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-surface-200 dark:border-surface-700">
+                    <thead>
+                      <tr className="bg-surface-100 dark:bg-surface-800">
+                        {csvHeaders.map((header, i) => (
+                          <th key={i} className="px-4 py-2 text-left text-xs font-medium text-surface-600 dark:text-surface-400 uppercase tracking-wider border-b border-surface-200 dark:border-surface-700">
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {csvData.slice(0, 3).map((row, i) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-white dark:bg-surface-900' : 'bg-surface-50 dark:bg-surface-800'}>
+                          {csvHeaders.map((header, j) => (
+                            <td key={j} className="px-4 py-2 text-sm border-b border-surface-200 dark:border-surface-700">
+                              {row[header]}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <div className="flex justify-between">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setCsvFile(null);
+                    setCsvData([]);
+                    setCsvHeaders([]);
+                    setIsMapping(false);
+                  }}
+                >
+                  Back
+                </button>
+                
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    // Validate required fields
+                    if (!columnMapping.name || !columnMapping.email) {
+                      toast.error('Name and Email fields are required');
+                      return;
+                    }
+                    
+                    // Import the contacts
+                    const newContacts = csvData.map((row, index) => ({
+                      id: nextId + index,
+                      name: row[columnMapping.name] || '',
+                      email: row[columnMapping.email] || '',
+                      phone: columnMapping.phone ? row[columnMapping.phone] || '' : '',
+                      company: columnMapping.company ? row[columnMapping.company] || '' : '',
+                      role: columnMapping.role ? row[columnMapping.role] || '' : '',
+                      category: columnMapping.category ? row[columnMapping.category].toLowerCase() || 'work' : 'work'
+                    }));
+                    
+                    // Add to demo contacts
+                    demoContacts.push(...newContacts);
+                    setNextId(nextId + newContacts.length);
+                    
+                    // Set search results to show imported contacts
+                    setSearchResults(newContacts);
+                    setImportedContacts(newContacts);
+                    
+                    // Reset import state
+                    setCsvFile(null);
+                    setCsvData([]);
+                    setCsvHeaders([]);
+                    setIsMapping(false);
+                    
+                    // Show success message
+                    toast.success(`Successfully imported ${newContacts.length} contacts!`);
+                    
+                    // Switch to search mode
+                    setDemoMode('search');
+                  }}
+                >
+                  Import {csvData.length} Contacts
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Contact Create Demo Component
@@ -363,6 +703,13 @@ const MainFeature = () => {
                 <PlusIcon className="w-4 h-4 mr-2" />
                 Create Contact
               </button>
+              <button 
+                className={`btn ${demoMode === 'import' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setDemoMode('import')}
+              >
+                <UploadIcon className="w-4 h-4 mr-2" />
+                Import/Export
+              </button>
             </div>
           </div>
           
@@ -527,6 +874,8 @@ const MainFeature = () => {
                   <ContactCreateDemo />
                 </div>
               </div>
+          ) : demoMode === 'import' ? (
+            <ImportExportDemo />
             </div>
           )}
         </div>
