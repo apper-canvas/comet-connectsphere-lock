@@ -38,6 +38,7 @@ function StatCard({ title, value, icon, trend, description, loading = false }) {
           {Icon && <Icon className="w-8 h-8 text-primary" />}
         </div>
     </div>
+    </div>
   );
 }
 
