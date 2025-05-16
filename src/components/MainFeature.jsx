@@ -865,20 +865,18 @@ Michael Wong,mike@personal.com,555-876-5432,City Hospital,Doctor,personal`;
             </>
           ) : (
             <div className="mt-6">
-              <div className="max-w-3xl mx-auto">
-                <div className="bg-surface-50 dark:bg-surface-800/50 p-6 rounded-lg mb-6">
-                  <h3 className="text-xl font-semibold mb-4">Create New Contact</h3>
-                  <p className="text-surface-600 dark:text-surface-400 mb-4">
-                    Fill in the form below to add a new contact to your demo contact list.
-                  </p>
-                  <ContactCreateDemo />
-                </div>
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-surface-50 dark:bg-surface-800/50 p-6 rounded-lg mb-6">
+                <h3 className="text-xl font-semibold mb-4">Create New Contact</h3>
+                <p className="text-surface-600 dark:text-surface-400 mb-4">
+                  Fill in the form below to add a new contact to your demo contact list.
+                </p>
+                <ContactCreateDemo />
               </div>
+            </div>
           ) : demoMode === 'import' ? (
               <ImportExportDemo />
-          ) : null }
-            </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </div>
