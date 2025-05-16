@@ -3,6 +3,8 @@ import { ToastContainer } from 'react-toastify';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
+import Contacts from './pages/Contacts';
+import AppLayout from './components/layout/AppLayout';
 
 function App() {
   return (
@@ -10,7 +12,12 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/calendar" element={<NotFound />} />
+            <Route path="/tasks" element={<NotFound />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

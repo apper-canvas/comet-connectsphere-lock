@@ -1,4 +1,45 @@
-import * as Icons from 'lucide-react';
+import { 
+  Home, 
+  User, 
+  Users,
+  UserPlus,
+  UserX,
+  Settings, 
+  Bell, 
+  Calendar, 
+  Mail, 
+  Phone, 
+  Star, 
+  Plus, 
+  Minus, 
+  Check, 
+  X, 
+  ChevronRight, 
+  ChevronDown, 
+  ExternalLink, 
+  Clock,
+  Loader2, 
+  Search, 
+  Trash, 
+  Edit, 
+  Eye, 
+  Download, 
+  Upload, 
+  Save, 
+  FileText, 
+  Image, 
+  Link, 
+  Share, 
+  Heart, 
+  MessageSquare, 
+  Send, 
+  MoreHorizontal, 
+  Menu, 
+  RefreshCw,
+  LayoutDashboard,
+  Grid,
+  List,
+  CheckSquare } from 'lucide-react';
 
 export const getIcon = (iconName) => {
   // Check if the icon exists in Lucide, return it if found
@@ -6,3 +47,12 @@ export const getIcon = (iconName) => {
     ? Icons[iconName]
     : Icons.Smile;
 };
+    'Users': <Users className={className} />,
+    'UserPlus': <UserPlus className={className} />,
+    'Loader2': <Loader2 className={className} />,
+    'RefreshCw': <RefreshCw className={className} />,
+    'LayoutDashboard': <LayoutDashboard className={className} />,
+    'Grid': <Grid className={className} />,
+    'List': <List className={className} />,
+    'CheckSquare': <CheckSquare className={className} />,
+    'UserX': <UserX className={className} />
