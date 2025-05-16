@@ -33,6 +33,7 @@ const MainFeature = () => {
   const MailIcon = getIcon('Mail');
   const XIcon = getIcon('X');
   const PlusIcon = getIcon('Plus');
+  const PhoneIcon = getIcon('Phone');
   
   const handleSearch = (e) => {
     e.preventDefault();
@@ -475,7 +476,7 @@ const MainFeature = () => {
                               </div>
                               {contact.phone && (
                                 <div className="mt-2 flex items-center text-sm text-surface-600 dark:text-surface-400">
-                                  {getIcon('Phone') && <getIcon('Phone') className="w-4 h-4 mr-1" />}
+                                  <PhoneIcon className="w-4 h-4 mr-1" />
                                   <span>{contact.phone}</span>
                                 </div>
                               )}
