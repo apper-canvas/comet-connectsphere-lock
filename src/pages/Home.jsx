@@ -496,16 +496,21 @@ const Home = () => {
               </p>
               
               <div className="flex space-x-4">
-                {["Twitter", "Facebook", "Instagram", "LinkedIn"].map((social, index) => (
+                {[
+                  { name: "Twitter", icon: "Twitter" },
+                  { name: "Facebook", icon: "Facebook" },
+                  { name: "Instagram", icon: "Instagram" },
+                  { name: "LinkedIn", icon: "Linkedin" }
+                ].map((social, index) => {
+                  const SocialIcon = getIcon(social.icon) || (() => <span>{social.name[0]}</span>);
+                  return (
                   <a 
                     key={index}
-                    href="#" 
-                    className="w-10 h-10 rounded-full bg-surface-800 flex items-center justify-center hover:bg-primary transition-colors"
-                  >
-                    <span className="sr-only">{social}</span>
-                    {getIcon(social.toLowerCase())}
+                    href="#" className="w-10 h-10 rounded-full bg-surface-800 flex items-center justify-center hover:bg-primary transition-colors">
+                    <span className="sr-only">{social.name}</span>
+                    <SocialIcon className="w-5 h-5" />
                   </a>
-                ))}
+                )})}
               </div>
             </div>
             
