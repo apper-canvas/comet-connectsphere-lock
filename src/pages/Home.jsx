@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +10,12 @@ const Home = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   
   // Set up icons as components
-  const UsersIcon = getIcon('Users');
+            <Link to="/dashboard" className="btn btn-primary">
+              Get Started
+            </Link>
+            <Link to="/dashboard" className="btn btn-secondary">
+              View Dashboard
+            </Link>
   const SearchIcon = getIcon('Search');
   const TagsIcon = getIcon('Tags');
   const ClockIcon = getIcon('Clock');
