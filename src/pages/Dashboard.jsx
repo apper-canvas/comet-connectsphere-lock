@@ -13,10 +13,12 @@ import StatCard from '../components/dashboard/StatCard';
 import ContactList from '../components/dashboard/ContactList';
 import ActivityTimeline from '../components/dashboard/ActivityTimeline';
 import TagsSummary from '../components/dashboard/TagsSummary';
+import useStatsData from '../hooks/useStatsData';
 import { getIcon } from '../utils/iconUtils';
 
 function Dashboard() {
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const { stats, loading, error } = useStatsData();
 
   return (
     <div className="min-h-screen bg-surface-100 dark:bg-surface-900">
@@ -127,9 +129,44 @@ function Dashboard() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard title="Total Contacts" value="248" icon="Users" trend="+12%" />
-          <StatCard title="Recent Additions" value="18" icon="UserPlus" trend="+5%" description="Last 30 days" />
-          <StatCard title="Upcoming Birthdays" value="3" icon="Cake" trend="" description="Next 7 days" />
+          {error ? (
+            <div className="col-span-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-lg">
+              <p className="text-center">{error}</p>
+            </div>
+          ) : (
+            <>
+              <StatCard 
+                title="Total Contacts" 
+                value={stats?.totalContacts?.value || 0} 
+                icon="Users" 
+                trend={stats?.totalContacts?.trend} 
+                loading={loading} 
+              />
+              <StatCard 
+                title="Recent Additions" 
+                value={stats?.recentAdditions?.count || 0} 
+                icon="UserPlus" 
+                trend={stats?.recentAdditions?.trend} 
+                description={stats?.recentAdditions?.description} 
+                loading={loading} 
+              />
+              <StatCard 
+                title="Upcoming Birthdays" 
+                value={stats?.upcomingBirthdays?.count || 0} 
+                icon="Cake" 
+                description={stats?.upcomingBirthdays?.description} 
+                loading={loading} 
+              />
+            </>
+          )}
+
+          {/* Hints for future expansion */}
+          {/* More stats cards can be added here in a separate row
+          <div className="col-span-3 mt-4">
+            <h3 className="text-lg font-semibold mb-4">More Insights</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            </div>
+          </div> */}
         </div>
 
         {/* Content Columns */}
