@@ -369,8 +369,8 @@ const MainFeature = () => {
           {demoMode === 'search' ? (
             <>
               <div className="flex space-x-2 mb-6">
-            <div className="flex space-x-2">
-              <button 
+                <div className="flex space-x-2">
+                  <button 
                 className={`btn ${activeTab === 'all' ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={() => handleTabChange('all')}
               >
@@ -398,7 +398,8 @@ const MainFeature = () => {
                 <HeartIcon className="w-4 h-4 mr-2" />
                 Personal
               </button>
-            </div>
+                </div>
+              </div>
               
               <form onSubmit={handleSearch} className="mb-8 relative">
                 <div className="flex">
@@ -528,7 +529,6 @@ const MainFeature = () => {
               </div>
             </div>
           )}
-          </div>
         </div>
       </div>
     </div>
