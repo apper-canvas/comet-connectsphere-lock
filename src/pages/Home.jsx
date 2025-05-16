@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getIcon } from '../utils/iconUtils';
 import MainFeature from '../components/MainFeature';
@@ -9,13 +8,6 @@ const Home = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   
-  // Set up icons as components
-            <Link to="/dashboard" className="btn btn-primary">
-              Get Started
-            </Link>
-            <Link to="/dashboard" className="btn btn-secondary">
-              View Dashboard
-            </Link>
   const SearchIcon = getIcon('Search');
   const TagsIcon = getIcon('Tags');
   const ClockIcon = getIcon('Clock');
