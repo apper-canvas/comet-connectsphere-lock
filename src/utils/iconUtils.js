@@ -1,10 +1,12 @@
-import React from 'react';
-import { 
+ import React from 'react';
+ import { 
   Home, 
   User, 
-  Users,
-  UserPlus,
-  UserX,
+  Home,
+  User,
+   Users,
+   UserPlus,
+   UserX,
   Settings, 
   Bell, 
   Calendar, 
@@ -18,7 +20,20 @@ import {
   ChevronRight, 
   ChevronDown, 
   ExternalLink, 
-  Clock,
+  Settings,
+  Bell,
+  Calendar,
+  Mail,
+  Phone,
+  Star,
+  Plus,
+  Minus,
+  Check,
+  X,
+  ChevronRight,
+  ChevronDown,
+  ExternalLink,
+   Clock,
   Loader2, 
   Search, 
   Trash, 
@@ -36,19 +51,36 @@ import {
   Send, 
   MoreHorizontal, 
   Menu, 
-  RefreshCw,
-  LayoutDashboard,
-  Grid,
-  List,
-  CheckSquare } from 'lucide-react';
-
+  Loader2,
+  Search,
+  Trash,
+  Edit,
+  Eye,
+  Download,
+  Upload,
+  Save,
+  FileText,
+  Image,
+  Link,
+  Share,
+  Heart,
+  MessageSquare,
+  Send,
+  MoreHorizontal,
+  Menu,
+   RefreshCw,
+   LayoutDashboard,
+   Grid,
+   List,
+   CheckSquare } from 'lucide-react';
+ 
 // Helper function to render icons with className
 const renderIcon = (Icon, className = "") => {
   return <Icon className={className} />;
 };
 
-// Define the Icons object with all available icons
-const Icons = {
+ // Define the Icons object with all available icons
+ const Icons = {
   Home: (className) => renderIcon(Home, className),
   User: (className) => renderIcon(User, className),
   Users: (className) => renderIcon(Users, className),
@@ -62,9 +94,35 @@ const Icons = {
   Grid: (className) => renderIcon(Grid, className),
   List: (className) => renderIcon(List, className),
   CheckSquare: (className) => renderIcon(CheckSquare, className)
-};
-
-export const getIcon = (iconName, className) => {
-  // Check if the icon exists in Lucide, return it if found
-  return Icons[iconName] ? Icons[iconName](className) : renderIcon(User, className);
-};
+  Home: (className) => (props) => <Home className={className} {...props} />,
+  User: (className) => (props) => <User className={className} {...props} />,
+  Users: (className) => (props) => <Users className={className} {...props} />,
+  UserPlus: (className) => (props) => <UserPlus className={className} {...props} />,
+  UserX: (className) => (props) => <UserX className={className} {...props} />,
+  Settings: (className) => (props) => <Settings className={className} {...props} />,
+  Bell: (className) => (props) => <Bell className={className} {...props} />,
+  Calendar: (className) => (props) => <Calendar className={className} {...props} />,
+  Mail: (className) => (props) => <Mail className={className} {...props} />,
+  Phone: (className) => (props) => <Phone className={className} {...props} />,
+  Star: (className) => (props) => <Star className={className} {...props} />,
+  Plus: (className) => (props) => <Plus className={className} {...props} />,
+  Search: (className) => (props) => <Search className={className} {...props} />,
+  Heart: (className) => (props) => <Heart className={className} {...props} />,
+  ChevronRight: (className) => (props) => <ChevronRight className={className} {...props} />,
+  ChevronDown: (className) => (props) => <ChevronDown className={className} {...props} />,
+  X: (className) => (props) => <X className={className} {...props} />,
+  Clock: (className) => (props) => <Clock className={className} {...props} />,
+  Loader2: (className) => (props) => <Loader2 className={className} {...props} />,
+  RefreshCw: (className) => (props) => <RefreshCw className={className} {...props} />,
+  LayoutDashboard: (className) => (props) => <LayoutDashboard className={className} {...props} />,
+  Grid: (className) => (props) => <Grid className={className} {...props} />,
+  List: (className) => (props) => <List className={className} {...props} />,
+  CheckSquare: (className) => (props) => <CheckSquare className={className} {...props} />,
+  Edit: (className) => (props) => <Edit className={className} {...props} />,
+  MoreHorizontal: (className) => (props) => <MoreHorizontal className={className} {...props} />,
+  Menu: (className) => (props) => <Menu className={className} {...props} />,
+  Upload: (className) => (props) => <Upload className={className} {...props} />,
+  Download: (className) => (props) => <Download className={className} {...props} />
+ };
+ 
+ export const getIcon = (iconName, className) => {
