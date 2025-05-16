@@ -875,9 +875,10 @@ Michael Wong,mike@personal.com,555-876-5432,City Hospital,Doctor,personal`;
                 </div>
               </div>
           ) : demoMode === 'import' ? (
-            <ImportExportDemo />
+              <ImportExportDemo />
+          ) : null }
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
