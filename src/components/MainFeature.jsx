@@ -8,6 +8,10 @@ const MainFeature = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [demoMode, setDemoMode] = useState('search'); // 'search' or 'create'
+  const [nextId, setNextId] = useState(6); // Starting ID for new contacts
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentContact, setCurrentContact] = useState(null);
   
   // Mock data
   const demoContacts = [
@@ -28,6 +32,7 @@ const MainFeature = () => {
   const BuildingIcon = getIcon('Building');
   const MailIcon = getIcon('Mail');
   const XIcon = getIcon('X');
+  const PlusIcon = getIcon('Plus');
   
   const handleSearch = (e) => {
     e.preventDefault();
@@ -87,6 +92,253 @@ const MainFeature = () => {
     }
   };
 
+  // Contact Create Demo Component
+  const ContactCreateDemo = () => {
+    const [newContact, setNewContact] = useState({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      role: '',
+      category: 'work'
+    });
+    const [errors, setErrors] = useState({});
+
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setNewContact({
+        ...newContact,
+        [name]: value
+      });
+      
+      // Clear error for this field when user types
+      if (errors[name]) {
+        setErrors({
+          ...errors,
+          [name]: ''
+        });
+      }
+    };
+
+    const validateForm = () => {
+      const newErrors = {};
+      
+      if (!newContact.name.trim()) {
+        newErrors.name = 'Name is required';
+      }
+      
+      if (!newContact.email.trim()) {
+        newErrors.email = 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(newContact.email)) {
+        newErrors.email = 'Email is invalid';
+      }
+      
+      if (!newContact.company.trim()) {
+        newErrors.company = 'Company is required';
+      }
+      
+      if (!newContact.phone.trim()) {
+        newErrors.phone = 'Phone number is required';
+      }
+
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      
+      if (!validateForm()) {
+        toast.error("Please fix the errors in the form");
+        return;
+      }
+      
+      setIsSubmitting(true);
+      
+      // Simulate API call
+      setTimeout(() => {
+        const newContactWithId = { 
+          ...newContact, 
+          id: nextId 
+        };
+        
+        // Add to demo contacts
+        demoContacts.push(newContactWithId);
+        setNextId(nextId + 1);
+        
+        // Set this contact as current for viewing
+        setCurrentContact(newContactWithId);
+        
+        // Reset form
+        setNewContact({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          role: '',
+          category: 'work'
+        });
+        
+        setIsSubmitting(false);
+        toast.success("Contact added successfully!");
+        
+        // Switch to search mode to see the contact
+        setDemoMode('search');
+        setSearchQuery(newContactWithId.name);
+        
+        // Trigger search for the new contact
+        const filtered = demoContacts.filter(contact => {
+          const matchesSearch = 
+            contact.name.toLowerCase().includes(newContactWithId.name.toLowerCase());
+          const matchesCategory = activeTab === 'all' || contact.category === activeTab;
+          return matchesSearch && matchesCategory;
+        });
+        
+        setSearchResults(filtered);
+      }, 800);
+    };
+
+    return (
+      <div className="py-4">
+        {/* Contact creation form implemented below */}
+        {currentContact ? (
+          <div className="mb-8">
+            <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-6 rounded-md">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm leading-5 text-green-700">
+                    Contact {currentContact.name} was added successfully! You can search for it above.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setCurrentContact(null)}
+              className="btn btn-primary"
+            >
+              Add Another Contact
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="name" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  Full Name *
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  className={`w-full px-3 py-2 border rounded-md ${errors.name ? 'border-red-500 bg-red-50' : 'border-surface-300 dark:border-surface-700'} dark:bg-surface-800`}
+                  placeholder="John Doe"
+                  value={newContact.name}
+                  onChange={handleInputChange}
+                />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="email" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  Email Address *
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  className={`w-full px-3 py-2 border rounded-md ${errors.email ? 'border-red-500 bg-red-50' : 'border-surface-300 dark:border-surface-700'} dark:bg-surface-800`}
+                  placeholder="john@example.com"
+                  value={newContact.email}
+                  onChange={handleInputChange}
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="phone" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  Phone Number *
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  className={`w-full px-3 py-2 border rounded-md ${errors.phone ? 'border-red-500 bg-red-50' : 'border-surface-300 dark:border-surface-700'} dark:bg-surface-800`}
+                  placeholder="(123) 456-7890"
+                  value={newContact.phone}
+                  onChange={handleInputChange}
+                />
+                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="company" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  Company *
+                </label>
+                <input
+                  id="company"
+                  name="company"
+                  type="text"
+                  className={`w-full px-3 py-2 border rounded-md ${errors.company ? 'border-red-500 bg-red-50' : 'border-surface-300 dark:border-surface-700'} dark:bg-surface-800`}
+                  placeholder="Acme Inc."
+                  value={newContact.company}
+                  onChange={handleInputChange}
+                />
+                {errors.company && <p className="text-red-500 text-xs mt-1">{errors.company}</p>}
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="role" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  Role
+                </label>
+                <input
+                  id="role"
+                  name="role"
+                  type="text"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-700 rounded-md dark:bg-surface-800"
+                  placeholder="Marketing Manager"
+                  value={newContact.role}
+                  onChange={handleInputChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label htmlFor="category" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                  Category
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-700 rounded-md dark:bg-surface-800"
+                  value={newContact.category}
+                  onChange={handleInputChange}
+                >
+                  <option value="work">Work</option>
+                  <option value="family">Family</option>
+                  <option value="personal">Personal</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="flex justify-end mt-6">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Adding Contact..." : "Add Contact"}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="py-12 md:py-16 lg:py-20 w-full">
       <div className="container-custom">
@@ -95,6 +347,27 @@ const MainFeature = () => {
             <h2 className="text-2xl font-bold mb-4 sm:mb-0">
               Contact Explorer
             </h2>
+            <div className="flex space-x-2">
+              <button 
+                className={`btn ${demoMode === 'search' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setDemoMode('search')}
+              >
+                <SearchIcon className="w-4 h-4 mr-2" />
+                Find Contacts
+              </button>
+              <button 
+                className={`btn ${demoMode === 'create' ? 'btn-primary' : 'btn-secondary'}`}
+                onClick={() => setDemoMode('create')}
+              >
+                <PlusIcon className="w-4 h-4 mr-2" />
+                Create Contact
+              </button>
+            </div>
+          </div>
+          
+          {demoMode === 'search' ? (
+            <>
+              <div className="flex space-x-2 mb-6">
             <div className="flex space-x-2">
               <button 
                 className={`btn ${activeTab === 'all' ? 'btn-primary' : 'btn-secondary'}`}
@@ -125,115 +398,135 @@ const MainFeature = () => {
                 Personal
               </button>
             </div>
-          </div>
-          
-          <form onSubmit={handleSearch} className="mb-8 relative">
-            <div className="flex">
-              <div className="relative flex-grow">
-                <input
-                  type="text"
-                  placeholder="Search contacts by name, company, or email..."
-                  className="w-full pl-10 pr-10 py-3 rounded-lg border border-surface-300 focus:ring-2 focus:ring-primary focus:border-primary dark:bg-surface-800 dark:border-surface-700"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500 w-5 h-5" />
-                
-                {searchQuery && (
+              
+              <form onSubmit={handleSearch} className="mb-8 relative">
+                <div className="flex">
+                  <div className="relative flex-grow">
+                    <input
+                      type="text"
+                      placeholder="Search contacts by name, company, or email..."
+                      className="w-full pl-10 pr-10 py-3 rounded-lg border border-surface-300 focus:ring-2 focus:ring-primary focus:border-primary dark:bg-surface-800 dark:border-surface-700"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500 w-5 h-5" />
+                    
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={clearSearch}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-surface-500 hover:text-surface-700"
+                      >
+                        <XIcon className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
                   <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-surface-500 hover:text-surface-700"
+                    type="submit"
+                    className="btn btn-primary ml-2"
+                    disabled={isSearching}
                   >
-                    <XIcon className="w-5 h-5" />
+                    {isSearching ? "Searching..." : "Search"}
                   </button>
+                </div>
+              </form>
+              
+              {/* Results Section */}
+              <div className="mt-6">
+                {isSearching ? (
+                  <div className="py-12 text-center">
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="mx-auto mb-4 text-primary"
+                    >
+                      <SearchIcon className="w-8 h-8" />
+                    </motion.div>
+                    <p>Searching contacts...</p>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium mb-4">{searchResults.length} contacts found</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {searchResults.map(contact => (
+                        <motion.div
+                          key={contact.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 hover:shadow-soft transition-shadow"
+                        >
+                          <div className="flex items-start">
+                            <div className="bg-primary/10 rounded-full p-3 mr-4">
+                              <UserIcon className="w-6 h-6 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-lg font-semibold">{contact.name}</h4>
+                              <div className="flex items-center mt-2 text-sm text-surface-600 dark:text-surface-400">
+                                <BuildingIcon className="w-4 h-4 mr-1" />
+                                <span className="mr-3">{contact.company}</span>
+                                <span className="border-l border-surface-300 dark:border-surface-600 pl-3">{contact.role}</span>
+                              </div>
+                              <div className="mt-3 flex items-center text-sm text-surface-600 dark:text-surface-400">
+                                <MailIcon className="w-4 h-4 mr-1" />
+                                <a href={`mailto:${contact.email}`} className="text-primary underline hover:text-primary-dark">
+                                  {contact.email}
+                                </a>
+                              </div>
+                              {contact.phone && (
+                                <div className="mt-2 flex items-center text-sm text-surface-600 dark:text-surface-400">
+                                  {getIcon('Phone') && <getIcon('Phone') className="w-4 h-4 mr-1" />}
+                                  <span>{contact.phone}</span>
+                                </div>
+                              )}
+                              <div className="mt-3">
+                                <span className={`px-2 py-1 text-xs rounded-full ${
+                                  contact.category === 'work' ? 'bg-blue-100 text-blue-800' :
+                                  contact.category === 'family' ? 'bg-green-100 text-green-800' :
+                                  'bg-purple-100 text-purple-800'
+                                }`}>
+                                  {contact.category}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                ) : searchQuery ? (
+                  <p className="text-center py-8 text-surface-600 dark:text-surface-400">
+                    No contacts found matching your search criteria.
+                  </p>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="mx-auto mb-4 bg-primary/10 rounded-full p-4 inline-block">
+                      <SearchIcon className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Try the Demo Search</h3>
+                    <p className="text-surface-600 dark:text-surface-400">
+                      Search through our sample contacts by typing a name, company or email.
+                    </p>
+                    <p className="mt-4 text-sm text-surface-500 dark:text-surface-500">
+                      Hint: Try searching for "tech", "design", or filter by category using the tabs above.
+                    </p>
+                  </div>
                 )}
               </div>
-              <button
-                type="submit"
-                className="btn btn-primary ml-2"
-                disabled={isSearching}
-              >
-                {isSearching ? "Searching..." : "Search"}
-              </button>
+            </>
+          ) : (
+            <div className="mt-6">
+              <div className="max-w-3xl mx-auto">
+                <div className="bg-surface-50 dark:bg-surface-800/50 p-6 rounded-lg mb-6">
+                  <h3 className="text-xl font-semibold mb-4">Create New Contact</h3>
+                  <p className="text-surface-600 dark:text-surface-400 mb-4">
+                    Fill in the form below to add a new contact to your demo contact list.
+                  </p>
+                  <ContactCreateDemo />
+                </div>
+              </div>
             </div>
-          </form>
-          
-          {/* Results Section */}
-          <div className="mt-6">
-            {isSearching ? (
-              <div className="py-12 text-center">
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="mx-auto mb-4 text-primary"
-                >
-                  <SearchIcon className="w-8 h-8" />
-                </motion.div>
-                <p>Searching contacts...</p>
-              </div>
-            ) : searchResults.length > 0 ? (
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium mb-4">{searchResults.length} contacts found</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {searchResults.map(contact => (
-                    <motion.div
-                      key={contact.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 hover:shadow-soft transition-shadow"
-                    >
-                      <div className="flex items-start">
-                        <div className="bg-primary/10 rounded-full p-3 mr-4">
-                          <UserIcon className="w-6 h-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-lg font-semibold">{contact.name}</h4>
-                          <div className="flex items-center mt-2 text-sm text-surface-600 dark:text-surface-400">
-                            <BuildingIcon className="w-4 h-4 mr-1" />
-                            <span className="mr-3">{contact.company}</span>
-                            <span className="border-l border-surface-300 dark:border-surface-600 pl-3">{contact.role}</span>
-                          </div>
-                          <div className="mt-3 flex items-center text-sm text-surface-600 dark:text-surface-400">
-                            <MailIcon className="w-4 h-4 mr-1" />
-                            <a href={`mailto:${contact.email}`} className="text-primary underline hover:text-primary-dark">
-                              {contact.email}
-                            </a>
-                          </div>
-                          <div className="mt-3">
-                            <span className={`px-2 py-1 text-xs rounded-full ${
-                              contact.category === 'work' ? 'bg-blue-100 text-blue-800' :
-                              contact.category === 'family' ? 'bg-green-100 text-green-800' :
-                              'bg-purple-100 text-purple-800'
-                            }`}>
-                              {contact.category}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            ) : searchQuery ? (
-              <p className="text-center py-8 text-surface-600 dark:text-surface-400">
-                No contacts found matching your search criteria.
-              </p>
-            ) : (
-              <div className="text-center py-12">
-                <div className="mx-auto mb-4 bg-primary/10 rounded-full p-4 inline-block">
-                  <SearchIcon className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Try the Demo Search</h3>
-                <p className="text-surface-600 dark:text-surface-400">
-                  Search through our sample contacts by typing a name, company or email.
-                </p>
-                <p className="mt-4 text-sm text-surface-500 dark:text-surface-500">
-                  Hint: Try searching for "tech", "design", or filter by category using the tabs above.
-                </p>
-              </div>
-            )}
+          )}
           </div>
         </div>
       </div>
