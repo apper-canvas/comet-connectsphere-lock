@@ -36,8 +36,7 @@ function StatCard({ title, value, icon, trend, description, loading = false }) {
         </div>
         <div className="flex items-center justify-center bg-primary/10 rounded-lg p-2">
           {Icon && <Icon className="w-8 h-8 text-primary" />}
-        {Icon && <Icon className="w-10 h-10 text-primary opacity-80" />}
-      </div>
+        </div>
     </div>
   );
 }
